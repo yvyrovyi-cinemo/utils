@@ -1,0 +1,13 @@
+# Binary files
+bin/
+
+# Dependency directories
+vendor/
+
+# Local files
+local/
+
+# IDE's
+/.idea
+
+**/.DS_Store

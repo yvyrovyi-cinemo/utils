@@ -1,0 +1,14 @@
+# Binary files
+bin/
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# Local files
+local/
+
+# IDE's
+/.idea/
