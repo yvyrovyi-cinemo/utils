@@ -2,14 +2,10 @@ package kafkalib
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
 	"sync"
-	"time"
-
-	circlebuff "git.internal.cinemo.com/~yvyrovyi/utils/circlebuf"
 
 	"github.com/IBM/sarama"
 )
@@ -26,21 +22,13 @@ type Consumer struct {
 }
 
 type ConsumerConfig struct {
-	Config                  `yaml:",inline"`
-	GroupID                 string        `env:"GROUP_ID" yaml:"group_id"`
-	Topics                  []string      `env:"TOPICS" envSeparator:"," yaml:"topics"`
-	FaultTolerancePeriod    time.Duration `env:"FAULT_TOLERANCE_PERIOD" yaml:"fault_tolerance_period"`
-	FaultToleranceThreshold int           `env:"FAULT_TOLERANCE_THRESHOLD" yaml:"fault_tolerance_threshold"`
+	Config  `yaml:",inline"`
+	GroupID string   `env:"GROUP_ID" yaml:"group_id"`
+	Topics  []string `env:"TOPICS" envSeparator:"," yaml:"topics"`
 }
 
 func (c ConsumerConfig) WithDefaults() ConsumerConfig {
-	if c.FaultTolerancePeriod == 0 {
-		c.FaultTolerancePeriod = 30 * time.Second
-	}
-
-	if c.FaultToleranceThreshold == 0 {
-		c.FaultToleranceThreshold = 3
-	}
+	// Default values could be added here
 
 	return c
 }
@@ -91,6 +79,7 @@ func (c *Consumer) SetOnUnassignHandler(h RebalanceHandler) {
 
 func (c *Consumer) Run(ctx context.Context, handler MessageHandler) error {
 	chanErr := make(chan error)
+
 	c.handler = handler
 
 	ctx, cancel := context.WithCancel(ctx)
@@ -130,29 +119,14 @@ func (c *Consumer) Run(ctx context.Context, handler MessageHandler) error {
 
 	var resErr error
 
-	circleBuff := circlebuff.New[int](c.FaultToleranceThreshold, c.FaultTolerancePeriod)
+	select {
+	case <-ctx.Done():
+		break
 
-waitLoop:
-	for {
-		select {
-		case <-ctx.Done():
-			break waitLoop
-
-		case err := <-chanErr:
-			c.logger.Error("consumer error", "error", err)
-			circleBuff.AddValue(1)
-
-			faultsNum, err := circleBuff.Sum()
-			if errors.Is(err, circlebuff.ErrNoValues) {
-				continue
-			}
-
-			if faultsNum >= c.FaultToleranceThreshold {
-				c.logger.Error("kafka consumer fault threshold exceeded")
-				resErr = err
-				break waitLoop
-			}
-		}
+	case err := <-chanErr:
+		c.logger.Error("consumer error", "error", err)
+		resErr = err
+		break
 	}
 
 	cancel()
