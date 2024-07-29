@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	"git.internal.cinemo.com/~yvyrovyi/utils/duration"
+	"github.com/yvyrovyi-cinemo/utils/duration"
 )
 
 type (

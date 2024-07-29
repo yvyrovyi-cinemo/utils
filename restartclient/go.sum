@@ -1,2 +1,2 @@
-git.internal.cinemo.com/~yvyrovyi/utils/duration v0.0.0 h1:sNfvrUi/sxNv9fOYw6PjmbDGXdO+HPlhQgAmFjGnFfM=
-git.internal.cinemo.com/~yvyrovyi/utils/duration v0.0.0/go.mod h1:wyv8hfY90XLUHzq7FyrPwpJX9FNio4q6N3Df5gu7Ckg=
+github.com/yvyrovyi-cinemo/utils/duration v0.0.0 h1:ZA9x/d5ZKEByliM3C4R9dKuQ/NrRSddzIDNNwszOVns=
+github.com/yvyrovyi-cinemo/utils/duration v0.0.0/go.mod h1:cSv71eeY/ibYgHItoy1xdFalFC8sqX3LzykSqwlpqB0=
